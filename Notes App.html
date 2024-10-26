@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note Taking App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom right, #e0f7fa, #80deea);
+            color: #004d40;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #00796b;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        #searchInput {
+            width: calc(100% - 22px);
+            padding: 8px;
+            margin: 8px 0;
+            border: 2px solid #00796b;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 1em;
+        }
+        #noteInput {
+            width: calc(100% - 22px);
+            padding: 8px;
+            margin: 8px 0;
+            border: 2px solid #00796b;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 1em;
+        }
+        .dateInput {
+            width: 30%;
+            padding: 8px;
+            margin: 8px 1%;
+            border: 2px solid #00796b;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 1em;
+            display: inline-block;
+        }
+        .dateContainer {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        #addNote {
+            padding: 8px 15px;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 1em;
+            width: 100%;
+        }
+        #addNote:hover {
+            background-color: #004d40;
+            transform: scale(1.05);
+        }
+        #notesList {
+            list-style-type: none;
+            padding: 0;
+        }
+        .noteItem {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .completed {
+            background-color: #c8e6c9; /* สีพื้นหลังสำหรับโน้ตที่เสร็จแล้ว */
+            text-decoration: line-through; /* ขีดเส้นใต้ข้อความ */
+        }
+        .deleteBtn, .completeBtn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+        }
+        .deleteBtn:hover {
+            background: #b71c1c;
+        }
+        .completeBtn {
+            background: #388e3c;
+        }
+        .completeBtn:hover {
+            background: #1b5e20;
+        }
+        .icon {
+            margin-right: 5px;
+        }
+        @media (max-width: 600px) {
+            #noteInput, #searchInput {
+                width: 100%;
+            }
+            #addNote {
+                width: 100%;
+            }
+            .dateInput {
+                width: 30%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Note Taking App</h1>
+        <input type="text" id="searchInput" placeholder="Search notes..." oninput="filterNotes()" />
+        <input type="text" id="noteInput" placeholder="Type your note here..." />
+        
+        <div class="dateContainer">
+            <select id="dateDay" class="dateInput">
+                <script>
+                    for (let i = 1; i <= 31; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+            
+            <select id="dateMonth" class="dateInput">
+                <script>
+                    const months = [
+                        "January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                    ];
+                    for (let i = 0; i < months.length; i++) {
+                        document.write(`<option value="${i + 1}">${months[i]}</option>`);
+                    }
+                </script>
+            </select>
+            
+            <select id="dateYear" class="dateInput">
+                <script>
+                    const currentYear = new Date().getFullYear();
+                    for (let i = currentYear; i >= currentYear - 100; i--) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+        
+        <button id="addNote">Add Note</button>
+        <h2>Pending Notes</h2>
+        <ul id="notesList"></ul>
+    </div>
+
+    <script>
+        const noteInput = document.getElementById('noteInput');
+        const dateDay = document.getElementById('dateDay');
+        const dateMonth = document.getElementById('dateMonth');
+        const dateYear = document.getElementById('dateYear');
+        const addNoteBtn = document.getElementById('addNote');
+        const notesList = document.getElementById('notesList');
+        const searchInput = document.getElementById('searchInput');
+
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+        function renderNotes(filteredNotes) {
+            notesList.innerHTML = '';
+            const notesToDisplay = filteredNotes || notes;
+            notesToDisplay.forEach((note, index) => {
+                const noteItem = document.createElement('li');
+                noteItem.className = `noteItem ${note.completed ? 'completed' : ''}`;
+                noteItem.innerHTML = `<span>${note.text} - Due: ${note.date}</span>
+                                     <div>
+                                         <button class="completeBtn" onclick="toggleComplete(${index})">
+                                             <i class="fas fa-check icon"></i> Complete
+                                         </button>
+                                         <button class="deleteBtn" onclick="deleteNote(${index})">
+                                             <i class="fas fa-trash-alt icon"></i> Delete
+                                         </button>
+                                     </div>`;
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        function addNote() {
+            const noteText = noteInput.value;
+            const dueDay = dateDay.value;
+            const dueMonth = dateMonth.value;
+            const dueYear = dateYear.value;
+
+            if (noteText.trim() && dueDay && dueMonth && dueYear) {
+                const note = {
+                    text: noteText,
+                    date: `${dueDay}/${dueMonth}/${dueYear}`,
+                    completed: false // เริ่มต้นโน้ตยังไม่เสร็จ
+                };
+                notes.unshift(note);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                noteInput.value = '';
+                renderNotes();
+            } else {
+                alert('Please enter both a note and a due date!');
+            }
+        }
+
+        function toggleComplete(index) {
+            notes[index].completed = !notes[index].completed;
+            localStorage.setItem('notes', JSON.stringify(notes));
+            renderNotes();
+        }
+
+        function deleteNote(index) {
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            renderNotes();
+        }
+
+        function filterNotes() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredNotes = notes.filter(note => note.text.toLowerCase().includes(searchTerm));
+            renderNotes(filteredNotes);
+        }
+
+        // เรียกใช้ฟังก์ชัน renderNotes เมื่อโหลดหน้าเว็บ
+        renderNotes();
+        // เชื่อมต่อปุ่ม Add Note
+        addNoteBtn.addEventListener('click', addNote);
+    </script>
+</body>
+</html>
